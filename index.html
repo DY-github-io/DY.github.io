@@ -1,443 +1,781 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DY 的收藏</title>
-    <style>
-        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>拼貼筆記</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#23262E;
+    --ink-2:#2B303A;
+    --paper:#F6F1E6;
+    --paper-dim:#EDE6D5;
+    --ink-text:#2B2620;
+    --paper-text:#EDE8DC;
+    --paper-text-dim:#B9B4A6;
+    --jade:#4B7A6C;
+    --plum:#6B4A63;
+    --brass:#C9A227;
+    --rose:#A9667A;
+    --slate:#5B6B79;
+    --moss:#748B57;
+    --ochre:#B5793A;
+    --lilac:#7C6A96;
+    --danger:#B24C3F;
+    --radius:14px;
+    --shadow: 0 8px 24px rgba(0,0,0,0.28);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ink);
+    background-image:
+      radial-gradient(circle at 15% 8%, rgba(255,255,255,0.03), transparent 40%),
+      radial-gradient(circle at 85% 92%, rgba(255,255,255,0.025), transparent 45%);
+    color:var(--paper-text);
+    font-family:'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  #app{
+    max-width:720px;
+    margin:0 auto;
+    padding:0 0 96px;
+    min-height:100vh;
+  }
 
-        :root {
-            --ground: #F4F1EC;
-            --surface: #FEFDFB;
-            --ink: #2C2925;
-            --ink-2: #7D786F;
-            --ink-3: #ADA89F;
-            --rule: #DDD9D2;
-            --sage: #527A65;
-            --sage-light: #E8F0EB;
-            --clay: #B07D4F;
-            --clay-light: #F3ECE3;
-        }
+  header{
+    padding:28px 20px 18px;
+    border-bottom:1px solid rgba(237,232,220,0.1);
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.12em;
+    color:var(--brass);
+    text-transform:uppercase;
+    margin:0 0 6px;
+  }
+  h1{
+    font-family:'Noto Serif TC', serif;
+    font-weight:700;
+    font-size:28px;
+    margin:0 0 4px;
+    color:var(--paper-text);
+    letter-spacing:0.02em;
+  }
+  .sub{
+    font-size:13px;
+    color:var(--paper-text-dim);
+    margin:0 0 18px;
+  }
+  .search-wrap{
+    position:relative;
+  }
+  #search{
+    width:100%;
+    background:rgba(237,232,220,0.06);
+    border:1px solid rgba(237,232,220,0.14);
+    border-radius:10px;
+    padding:11px 14px;
+    color:var(--paper-text);
+    font-size:14px;
+    font-family:inherit;
+    outline:none;
+    transition:border-color .15s;
+  }
+  #search::placeholder{color:var(--paper-text-dim);}
+  #search:focus{border-color:var(--brass);}
+  .meta-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:12px;
+    font-size:12px;
+    color:var(--paper-text-dim);
+  }
+  .link-btn{
+    background:none;
+    border:none;
+    color:var(--brass);
+    font-size:12px;
+    font-family:'IBM Plex Mono', monospace;
+    cursor:pointer;
+    padding:4px 0;
+  }
+  .link-btn:hover{text-decoration:underline;}
 
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --ground: #171615;
-                --surface: #222120;
-                --ink: #D5D0C8;
-                --ink-2: #8A857D;
-                --ink-3: #565350;
-                --rule: #333130;
-                --sage: #72A98A;
-                --sage-light: #1D2B23;
-                --clay: #CCA06C;
-                --clay-light: #2A2319;
-            }
-        }
-        :root[data-theme="dark"] {
-            --ground: #171615;
-            --surface: #222120;
-            --ink: #D5D0C8;
-            --ink-2: #8A857D;
-            --ink-3: #565350;
-            --rule: #333130;
-            --sage: #72A98A;
-            --sage-light: #1D2B23;
-            --clay: #CCA06C;
-            --clay-light: #2A2319;
-        }
-        :root[data-theme="light"] {
-            --ground: #F4F1EC;
-            --surface: #FEFDFB;
-            --ink: #2C2925;
-            --ink-2: #7D786F;
-            --ink-3: #ADA89F;
-            --rule: #DDD9D2;
-            --sage: #527A65;
-            --sage-light: #E8F0EB;
-            --clay: #B07D4F;
-            --clay-light: #F3ECE3;
-        }
+  .tagrow{
+    display:flex;
+    gap:8px;
+    padding:14px 20px;
+    overflow-x:auto;
+    scrollbar-width:none;
+  }
+  .tagrow::-webkit-scrollbar{display:none;}
+  .chip{
+    flex:0 0 auto;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    padding:7px 13px;
+    border-radius:999px;
+    border:1px solid rgba(237,232,220,0.18);
+    background:rgba(237,232,220,0.04);
+    color:var(--paper-text-dim);
+    cursor:pointer;
+    white-space:nowrap;
+    transition:all .15s;
+    user-select:none;
+  }
+  .chip[data-active="true"]{
+    background:var(--brass);
+    border-color:var(--brass);
+    color:#23262E;
+    font-weight:600;
+  }
+  .chip:focus-visible{outline:2px solid var(--brass); outline-offset:2px;}
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", sans-serif;
-            background: var(--ground);
-            color: var(--ink);
-            line-height: 1.7;
-            -webkit-font-smoothing: antialiased;
-        }
+  #list{
+    padding:6px 20px 20px;
+    display:grid;
+    grid-template-columns:1fr;
+    gap:16px;
+  }
+  @media (min-width:560px){
+    #list{grid-template-columns:1fr 1fr;}
+  }
+  .card{
+    background:var(--paper);
+    color:var(--ink-text);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:14px 14px 16px;
+    position:relative;
+    cursor:pointer;
+    transition:transform .12s ease;
+  }
+  .card:active{transform:scale(0.985);}
+  .pin{
+    position:absolute;
+    top:-6px;
+    left:18px;
+    width:11px;
+    height:11px;
+    border-radius:50%;
+    box-shadow:0 2px 3px rgba(0,0,0,0.35);
+    border:2px solid rgba(0,0,0,0.15);
+  }
+  .thumb-wrap{
+    background:#fff;
+    padding:6px 6px 0;
+    border-radius:6px 6px 2px 2px;
+    box-shadow:0 3px 8px rgba(0,0,0,0.18);
+    margin-bottom:12px;
+  }
+  .thumb{
+    width:100%;
+    display:block;
+    aspect-ratio:4/3;
+    object-fit:cover;
+    border-radius:3px 3px 0 0;
+  }
+  .thumb-caption{height:14px;}
+  .card-title{
+    font-family:'Noto Serif TC', serif;
+    font-weight:700;
+    font-size:16px;
+    line-height:1.4;
+    margin:0 0 8px;
+    padding-right:6px;
+  }
+  .tags-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin-bottom:8px;
+  }
+  .tag-pill{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    padding:3px 9px;
+    border-radius:999px;
+    color:#fff;
+    letter-spacing:0.02em;
+  }
+  .note{
+    font-size:13px;
+    line-height:1.6;
+    color:#4A4438;
+    margin:0 0 8px;
+    display:-webkit-box;
+    -webkit-line-clamp:3;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+  }
+  .card-link{
+    font-size:12px;
+    color:var(--jade);
+    text-decoration:none;
+    font-weight:600;
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+  }
+  .card-link:hover{text-decoration:underline;}
 
-        .page {
-            max-width: 700px;
-            margin: 0 auto;
-            padding: 0 1.25rem;
-        }
+  .empty{
+    padding:60px 30px;
+    text-align:center;
+    color:var(--paper-text-dim);
+  }
+  .empty .glyph{font-size:34px; margin-bottom:10px; opacity:0.6;}
+  .empty p{font-size:14px; line-height:1.7; margin:0;}
 
-        /* ── Header ── */
-        .site-header {
-            padding: 2.5rem 0 0.75rem;
-        }
-        .site-header h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            letter-spacing: -0.01em;
-        }
-        .site-header p {
-            color: var(--ink-2);
-            font-size: 0.88rem;
-            margin-top: 0.15rem;
-        }
+  #fab{
+    position:fixed;
+    right:20px;
+    bottom:24px;
+    width:56px;
+    height:56px;
+    border-radius:50%;
+    background:var(--brass);
+    color:#23262E;
+    border:none;
+    font-size:26px;
+    font-weight:600;
+    box-shadow:0 8px 20px rgba(0,0,0,0.4);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:20;
+    transition:transform .12s;
+  }
+  #fab:active{transform:scale(0.92);}
+  #fab:focus-visible{outline:2px solid #fff; outline-offset:3px;}
 
-        /* ── Nav ── */
-        .site-nav {
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            background: var(--ground);
-            border-bottom: 1px solid var(--rule);
-            padding: 0.6rem 0;
-            overflow-x: auto;
-            white-space: nowrap;
-            display: flex;
-            gap: 0.15rem;
-        }
-        .site-nav::after {
-            content: "";
-            position: absolute;
-            bottom: -1px;
-            left: 0;
-            right: 0;
-            height: 1px;
-        }
-        .site-nav a {
-            display: inline-block;
-            padding: 0.3rem 0.7rem;
-            font-size: 0.85rem;
-            color: var(--ink-2);
-            text-decoration: none;
-            border-bottom: 2px solid transparent;
-            transition: color 0.15s, border-color 0.15s;
-        }
-        .site-nav a:hover {
-            color: var(--ink);
-        }
-        .site-nav a.active {
-            color: var(--sage);
-            border-bottom-color: var(--sage);
-        }
+  #overlay{
+    position:fixed; inset:0;
+    background:rgba(15,16,20,0.6);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .18s;
+    z-index:30;
+  }
+  #overlay[data-open="true"]{opacity:1; pointer-events:auto;}
+  #sheet{
+    position:fixed;
+    left:0; right:0; bottom:0;
+    max-width:720px;
+    margin:0 auto;
+    background:var(--paper);
+    color:var(--ink-text);
+    border-radius:20px 20px 0 0;
+    padding:18px 20px calc(20px + env(safe-area-inset-bottom));
+    max-height:88vh;
+    overflow-y:auto;
+    transform:translateY(100%);
+    transition:transform .22s ease;
+    z-index:31;
+  }
+  #overlay[data-open="true"] #sheet{transform:translateY(0);}
+  .sheet-handle{
+    width:36px; height:4px; background:rgba(43,38,32,0.2);
+    border-radius:99px; margin:0 auto 16px;
+  }
+  .sheet-title{
+    font-family:'Noto Serif TC', serif;
+    font-weight:700;
+    font-size:19px;
+    margin:0 0 16px;
+  }
+  .field{margin-bottom:16px;}
+  .field label{
+    display:block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.06em;
+    color:#7A7263;
+    text-transform:uppercase;
+    margin-bottom:6px;
+  }
+  .field input[type=text], .field input[type=url], .field textarea{
+    width:100%;
+    border:1px solid rgba(43,38,32,0.18);
+    background:#fff;
+    border-radius:10px;
+    padding:10px 12px;
+    font-size:14px;
+    font-family:'Noto Sans TC', sans-serif;
+    color:var(--ink-text);
+    outline:none;
+    resize:vertical;
+  }
+  .field input:focus, .field textarea:focus{border-color:var(--jade);}
+  .field textarea{min-height:70px;}
+  .hint{font-size:11.5px; color:#9A927E; margin-top:5px;}
+  .tag-picker{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px;}
+  .tag-toggle{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    padding:6px 12px;
+    border-radius:999px;
+    border:1px solid rgba(43,38,32,0.18);
+    background:#fff;
+    color:#5A5344;
+    cursor:pointer;
+  }
+  .tag-toggle[data-on="true"]{
+    color:#fff;
+    border-color:transparent;
+  }
+  .tag-add-row{display:flex; gap:8px;}
+  .tag-add-row input{flex:1;}
+  .tag-add-row button{
+    flex:0 0 auto;
+    border:1px solid rgba(43,38,32,0.18);
+    background:#fff;
+    border-radius:10px;
+    padding:0 16px;
+    font-size:13px;
+    cursor:pointer;
+    color:var(--ink-text);
+  }
+  .preview-thumb{
+    margin-top:8px;
+    width:100%;
+    max-height:160px;
+    object-fit:cover;
+    border-radius:8px;
+    display:none;
+  }
+  .sheet-actions{
+    display:flex;
+    gap:10px;
+    margin-top:20px;
+  }
+  .btn{
+    flex:1;
+    padding:13px;
+    border-radius:10px;
+    border:none;
+    font-size:14px;
+    font-weight:600;
+    font-family:'Noto Sans TC', sans-serif;
+    cursor:pointer;
+  }
+  .btn-primary{background:var(--jade); color:#fff;}
+  .btn-ghost{background:transparent; border:1px solid rgba(43,38,32,0.2); color:var(--ink-text);}
+  .btn-danger{background:transparent; color:var(--danger); border:1px solid rgba(178,76,63,0.35);}
 
-        /* ── Sections ── */
-        .section {
-            padding-top: 2.5rem;
-        }
+  .toast{
+    position:fixed;
+    top:16px; left:50%;
+    transform:translateX(-50%) translateY(-140%);
+    background:#23262E;
+    color:var(--paper-text);
+    padding:10px 18px;
+    border-radius:10px;
+    font-size:13px;
+    box-shadow:var(--shadow);
+    transition:transform .22s ease;
+    z-index:50;
+    max-width:80%;
+    text-align:center;
+  }
+  .toast[data-show="true"]{transform:translateX(-50%) translateY(0);}
 
-        .section-label {
-            display: inline-block;
-            background: var(--sage);
-            color: #fff;
-            font-size: 0.78rem;
-            font-weight: 600;
-            padding: 0.2rem 0.7rem;
-            letter-spacing: 0.04em;
-            margin-bottom: 1rem;
-        }
-
-        /* ── Card grid ── */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.75rem;
-        }
-        @media (max-width: 520px) {
-            .grid { grid-template-columns: 1fr; }
-        }
-
-        .card {
-            background: var(--surface);
-            border: 1px solid var(--rule);
-            padding: 1rem 1.1rem;
-            transition: border-color 0.15s;
-        }
-        .card:hover {
-            border-color: var(--ink-3);
-        }
-        .card-title {
-            font-size: 0.92rem;
-            font-weight: 600;
-            margin-bottom: 0.3rem;
-        }
-        .card-title a {
-            color: var(--ink);
-            text-decoration: none;
-        }
-        .card-title a:hover {
-            color: var(--sage);
-        }
-        .card-desc {
-            font-size: 0.82rem;
-            color: var(--ink-2);
-            line-height: 1.55;
-        }
-        .card-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.35rem;
-            margin-top: 0.55rem;
-        }
-        .card-tag {
-            font-size: 0.7rem;
-            font-weight: 500;
-            color: var(--sage);
-            background: var(--sage-light);
-            padding: 0.12rem 0.5rem;
-            letter-spacing: 0.02em;
-        }
-
-        /* ── Wishlist ── */
-        .wish-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0;
-        }
-        .wish-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            padding: 0.75rem 0;
-            border-bottom: 1px solid var(--rule);
-            gap: 1rem;
-        }
-        .wish-row:last-child {
-            border-bottom: none;
-        }
-        .wish-name {
-            font-size: 0.92rem;
-            font-weight: 500;
-        }
-        .wish-note {
-            font-size: 0.78rem;
-            color: var(--ink-2);
-            margin-top: 0.1rem;
-        }
-        .wish-price {
-            font-size: 0.88rem;
-            font-weight: 600;
-            color: var(--clay);
-            white-space: nowrap;
-            font-variant-numeric: tabular-nums;
-        }
-
-        /* ── Notes ── */
-        .note {
-            background: var(--surface);
-            border: 1px solid var(--rule);
-            border-left: 3px solid var(--clay);
-            padding: 1rem 1.1rem;
-            margin-bottom: 0.75rem;
-        }
-        .note-title {
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 0.45rem;
-        }
-        .note p, .note ul {
-            font-size: 0.84rem;
-            color: var(--ink-2);
-            line-height: 1.6;
-        }
-        .note ul {
-            padding-left: 1.1rem;
-        }
-        .note li {
-            margin-bottom: 0.2rem;
-        }
-        .note li::marker {
-            color: var(--ink-3);
-        }
-
-        /* ── Footer ── */
-        .site-footer {
-            padding: 3rem 0 2rem;
-            font-size: 0.75rem;
-            color: var(--ink-3);
-        }
-        .site-footer hr {
-            border: none;
-            border-top: 1px solid var(--rule);
-            margin-bottom: 0.75rem;
-        }
-
-        /* ── Focus ── */
-        a:focus-visible {
-            outline: 2px solid var(--sage);
-            outline-offset: 2px;
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            * { transition: none !important; }
-        }
-    </style>
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;}
+  }
+</style>
 </head>
 <body>
-<div class="page">
+<div id="app">
+  <header>
+    <p class="eyebrow">naveenaa · 持續累積</p>
+    <h1>拼貼筆記</h1>
+    <p class="sub">參考資料、想買的、想存的、食譜——什麼都放得進來</p>
+    <div class="search-wrap">
+      <input id="search" type="text" placeholder="搜尋標題或筆記內容…" autocomplete="off">
+    </div>
+    <div class="meta-row">
+      <span id="countLabel"></span>
+      <button type="button" id="exportBtn" class="link-btn">⤓ 匯出備份檔</button>
+    </div>
+  </header>
 
-    <header class="site-header">
-        <h1>DY 的收藏</h1>
-        <p>什麼都收一點的個人資料庫</p>
-    </header>
+  <div class="tagrow" id="tagrow"></div>
 
-    <nav class="site-nav" id="nav">
-        <a href="#recipes">食譜</a>
-        <a href="#work">工作參考</a>
-        <a href="#wishlist">想買的</a>
-        <a href="#notes">筆記</a>
-        <a href="#links">常用連結</a>
-    </nav>
+  <div id="list"></div>
 
-    <main>
-
-        <!-- ── 食譜 ── -->
-        <section class="section" id="recipes">
-            <span class="section-label">食譜</span>
-            <div class="grid">
-                <div class="card">
-                    <div class="card-title">日式咖哩</div>
-                    <div class="card-desc">馬鈴薯紅蘿蔔豬肉，用現成咖哩塊就很好吃，平日晚餐首選。</div>
-                    <div class="card-meta"><span class="card-tag">日式</span><span class="card-tag">簡單</span></div>
-                </div>
-                <div class="card">
-                    <div class="card-title">蒜香奶油義大利麵</div>
-                    <div class="card-desc">15 分鐘搞定。大蒜、奶油、帕瑪森起司，擠一點檸檬汁。</div>
-                    <div class="card-meta"><span class="card-tag">義式</span><span class="card-tag">快速</span></div>
-                </div>
-                <div class="card">
-                    <div class="card-title">滷肉飯</div>
-                    <div class="card-desc">五花肉切小丁，紅蔥頭爆香，醬油冰糖小火慢滷，配白飯無敵。</div>
-                    <div class="card-meta"><span class="card-tag">台式</span><span class="card-tag">經典</span></div>
-                </div>
-                <div class="card">
-                    <div class="card-title">味噌湯</div>
-                    <div class="card-desc">豆腐、海帶芽、蔥花。味噌不要煮滾，關火再拌進去。</div>
-                    <div class="card-meta"><span class="card-tag">日式</span><span class="card-tag">湯品</span></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ── 工作參考 ── -->
-        <section class="section" id="work">
-            <span class="section-label">工作參考</span>
-            <div class="grid">
-                <div class="card">
-                    <div class="card-title"><a href="#">Git 常用指令</a></div>
-                    <div class="card-desc">branch、merge、rebase、stash，常忘的指令都記在這裡。</div>
-                    <div class="card-meta"><span class="card-tag">Git</span><span class="card-tag">速查</span></div>
-                </div>
-                <div class="card">
-                    <div class="card-title"><a href="#">會議記錄模板</a></div>
-                    <div class="card-desc">議程、決議事項、追蹤項目。每次開會直接複製貼上。</div>
-                    <div class="card-meta"><span class="card-tag">模板</span></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ── 想買的 ── -->
-        <section class="section" id="wishlist">
-            <span class="section-label">想買的</span>
-            <div class="wish-list">
-                <div class="wish-row">
-                    <div>
-                        <div class="wish-name">機械鍵盤</div>
-                        <div class="wish-note">無線、熱插拔、75% 配列</div>
-                    </div>
-                    <div class="wish-price">~$3,600</div>
-                </div>
-                <div class="wish-row">
-                    <div>
-                        <div class="wish-name">降噪耳機</div>
-                        <div class="wish-note">通勤跟專注工作用</div>
-                    </div>
-                    <div class="wish-price">~$7,500</div>
-                </div>
-                <div class="wish-row">
-                    <div>
-                        <div class="wish-name">螢幕掛燈</div>
-                        <div class="wish-note">不反光、可調色溫</div>
-                    </div>
-                    <div class="wish-price">~$1,200</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ── 筆記 ── -->
-        <section class="section" id="notes">
-            <span class="section-label">筆記</span>
-            <div class="note">
-                <div class="note-title">想讀的書</div>
-                <ul>
-                    <li>原子習慣 — James Clear</li>
-                    <li>深度工作力 — Cal Newport</li>
-                    <li>跟任何人都可以聊得來</li>
-                </ul>
-            </div>
-            <div class="note">
-                <div class="note-title">隨手記</div>
-                <p>可以放任何臨時想到的東西，待辦事項、靈感、備忘錄。直接編輯這個區塊就好。</p>
-            </div>
-        </section>
-
-        <!-- ── 常用連結 ── -->
-        <section class="section" id="links">
-            <span class="section-label">常用連結</span>
-            <div class="grid">
-                <div class="card">
-                    <div class="card-title"><a href="https://github.com" target="_blank" rel="noopener">GitHub</a></div>
-                    <div class="card-desc">程式碼託管、版本控制</div>
-                </div>
-                <div class="card">
-                    <div class="card-title"><a href="https://www.youtube.com" target="_blank" rel="noopener">YouTube</a></div>
-                    <div class="card-desc">教學影片、音樂、各種頻道</div>
-                </div>
-                <div class="card">
-                    <div class="card-title"><a href="https://claude.ai" target="_blank" rel="noopener">Claude</a></div>
-                    <div class="card-desc">AI 助手，問問題、寫程式</div>
-                </div>
-                <div class="card">
-                    <div class="card-title"><a href="https://www.google.com.tw" target="_blank" rel="noopener">Google</a></div>
-                    <div class="card-desc">搜尋引擎</div>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <footer class="site-footer">
-        <hr>
-        DY 的收藏 · 最後更新 2026-07
-    </footer>
-
+  <button id="fab" aria-label="新增一則">+</button>
 </div>
 
+<div id="overlay">
+  <div id="sheet" role="dialog" aria-modal="true">
+    <div class="sheet-handle"></div>
+    <h2 class="sheet-title" id="sheetTitle">新增一則</h2>
+
+    <div class="field">
+      <label for="f-title">標題</label>
+      <input type="text" id="f-title" placeholder="這是什麼？">
+    </div>
+
+    <div class="field">
+      <label>分類標籤</label>
+      <div class="tag-picker" id="tagPicker"></div>
+      <div class="tag-add-row">
+        <input type="text" id="f-newtag" placeholder="輸入新標籤，按新增">
+        <button type="button" id="addTagBtn">新增</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="f-note">簡短筆記</label>
+      <textarea id="f-note" placeholder="幾句話記下重點、原因、或你的想法"></textarea>
+    </div>
+
+    <div class="field">
+      <label for="f-image">代表圖網址（選填）</label>
+      <input type="url" id="f-image" placeholder="貼上圖片連結">
+      <img id="previewThumb" class="preview-thumb" alt="">
+    </div>
+
+    <div class="field">
+      <label for="f-link">來源連結（選填）</label>
+      <input type="url" id="f-link" placeholder="https://…">
+    </div>
+
+    <div class="sheet-actions">
+      <button class="btn btn-ghost" id="cancelBtn">取消</button>
+      <button class="btn btn-primary" id="saveBtn">儲存</button>
+    </div>
+    <div class="sheet-actions" id="deleteRow" style="display:none;">
+      <button class="btn btn-danger" id="deleteBtn">刪除這一則</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
 <script>
-(function() {
-    var nav = document.getElementById("nav");
-    var links = nav.querySelectorAll("a");
-    var sections = [];
-    links.forEach(function(a) {
-        var id = a.getAttribute("href").slice(1);
-        var el = document.getElementById(id);
-        if (el) sections.push({ link: a, el: el });
-    });
-    function update() {
-        var y = window.scrollY + 80;
-        var current = sections[0];
-        for (var i = 0; i < sections.length; i++) {
-            if (sections[i].el.offsetTop <= y) current = sections[i];
-        }
-        links.forEach(function(a) { a.classList.remove("active"); });
-        if (current) current.link.classList.add("active");
+(function(){
+  var STORAGE_KEY = 'naveenaa-entries';
+  var DELETED_SEEDS_KEY = 'naveenaa-deleted-seeds';
+  var PALETTE = [
+    {name:'jade', hex:'#4B7A6C'},
+    {name:'plum', hex:'#6B4A63'},
+    {name:'brass', hex:'#C9A227'},
+    {name:'rose', hex:'#A9667A'},
+    {name:'slate', hex:'#5B6B79'},
+    {name:'moss', hex:'#748B57'},
+    {name:'ochre', hex:'#B5793A'},
+    {name:'lilac', hex:'#7C6A96'}
+  ];
+  var DEFAULT_TAGS = ['參考資料','想買的','想存的','食譜'];
+
+  // ─── 種子資料 ───
+  // Claude 幫使用者新增內容時，加在這個陣列裡，id 用 'seed-' 前綴
+  var SEED_ENTRIES = [
+    {
+      id: 'seed-001',
+      title: 'DGI宅時光',
+      tags: ['參考資料','健康/營養'],
+      note: '台灣品牌，主打低醣、生酮、斷食飲食系列。產品線包含超級包、超級拿鐵、奶油咖啡、訂製蛋白質餐袋、MCT油隨身瓶等。',
+      image: 'https://dgilife.com/cdn/shop/files/1_1f100308-3a34-4634-9831-b901a09743f4.png?crop=center&height=1200&v=1660213094&width=1200',
+      link: 'https://dgilife.com/',
+      createdAt: '2026-07-30T00:00:00.000Z'
     }
-    window.addEventListener("scroll", update, { passive: true });
-    update();
+  ];
+
+  var entries = [];
+  var activeTag = null;
+  var searchTerm = '';
+  var sheetMode = 'add';
+  var editingId = null;
+  var sheetSelectedTags = new Set();
+
+  var $ = function(sel){ return document.querySelector(sel); };
+  var list = $('#list');
+  var tagrow = $('#tagrow');
+  var overlay = $('#overlay');
+  var toastEl = $('#toast');
+
+  function escapeHtml(str){
+    return String(str || '').replace(/[&<>"']/g, function(m){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];
+    });
+  }
+
+  function hashStr(s){
+    var h = 0;
+    for(var i=0;i<s.length;i++){ h = (h*31 + s.charCodeAt(i)) >>> 0; }
+    return h;
+  }
+  function tagColor(tag){
+    return PALETTE[hashStr(tag) % PALETTE.length].hex;
+  }
+  function uid(){
+    if(window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    return 'id-' + Date.now() + '-' + Math.random().toString(36).slice(2,8);
+  }
+  function showToast(msg){
+    toastEl.textContent = msg;
+    toastEl.setAttribute('data-show','true');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(function(){ toastEl.removeAttribute('data-show'); }, 2200);
+  }
+
+  function getDeletedSeeds(){
+    try {
+      var raw = localStorage.getItem(DELETED_SEEDS_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch(e){ return []; }
+  }
+
+  function loadEntries(){
+    var stored = localStorage.getItem(STORAGE_KEY);
+    var local = [];
+    try { if(stored) local = JSON.parse(stored); } catch(e){}
+
+    var localIds = {};
+    local.forEach(function(e){ localIds[e.id] = true; });
+    var deletedIds = {};
+    getDeletedSeeds().forEach(function(id){ deletedIds[id] = true; });
+
+    var newSeeds = SEED_ENTRIES.filter(function(s){
+      return !localIds[s.id] && !deletedIds[s.id];
+    });
+
+    entries = local.concat(newSeeds);
+    if(newSeeds.length > 0) persist();
+  }
+
+  function persist(){
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+    } catch(e){
+      showToast('儲存失敗，可能是儲存空間已滿');
+    }
+  }
+
+  function allTags(){
+    var set = {};
+    DEFAULT_TAGS.forEach(function(t){ set[t] = true; });
+    entries.forEach(function(e){ (e.tags||[]).forEach(function(t){ set[t] = true; }); });
+    return Object.keys(set);
+  }
+
+  function renderTagRow(){
+    var tags = allTags();
+    tagrow.innerHTML = '';
+    var allChip = document.createElement('div');
+    allChip.className = 'chip';
+    allChip.textContent = '全部';
+    allChip.dataset.active = (activeTag === null) ? 'true' : 'false';
+    allChip.tabIndex = 0;
+    allChip.addEventListener('click', function(){ activeTag = null; render(); });
+    tagrow.appendChild(allChip);
+
+    tags.forEach(function(tag){
+      var chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.textContent = tag;
+      chip.dataset.active = (activeTag === tag) ? 'true' : 'false';
+      chip.tabIndex = 0;
+      chip.addEventListener('click', function(){ activeTag = (activeTag === tag) ? null : tag; render(); });
+      tagrow.appendChild(chip);
+    });
+  }
+
+  function filteredEntries(){
+    return entries
+      .filter(function(e){ return !activeTag || (e.tags||[]).indexOf(activeTag) > -1; })
+      .filter(function(e){
+        if(!searchTerm) return true;
+        var hay = (e.title + ' ' + e.note).toLowerCase();
+        return hay.indexOf(searchTerm.toLowerCase()) > -1;
+      })
+      .sort(function(a,b){ return new Date(b.createdAt) - new Date(a.createdAt); });
+  }
+
+  function renderList(){
+    var items = filteredEntries();
+    if(items.length === 0){
+      list.innerHTML = '<div class="empty" style="grid-column:1/-1;">' +
+        '<div class="glyph">◆</div>' +
+        '<p>' + (entries.length === 0 ? '還沒有任何紀錄，點右下角開始新增' : '這個分類目前沒有東西') + '</p></div>';
+      return;
+    }
+    list.innerHTML = items.map(function(e){
+      var pinColor = tagColor((e.tags && e.tags[0]) || 'default');
+      var thumb = e.image ? '<div class="thumb-wrap">' +
+        '<img class="thumb" src="' + escapeHtml(e.image) + '" loading="lazy" onerror="this.parentElement.style.display=\'none\'" alt="">' +
+        '<div class="thumb-caption"></div></div>' : '';
+      var tagsHtml = (e.tags||[]).map(function(t){ return '<span class="tag-pill" style="background:' + tagColor(t) + '">' + escapeHtml(t) + '</span>'; }).join('');
+      var linkHtml = e.link ? '<a class="card-link" href="' + escapeHtml(e.link) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">前往連結 ↗</a>' : '';
+      return '<div class="card" data-id="' + e.id + '">' +
+        '<div class="pin" style="background:' + pinColor + '"></div>' +
+        thumb +
+        '<div class="card-title">' + escapeHtml(e.title) + '</div>' +
+        '<div class="tags-row">' + tagsHtml + '</div>' +
+        (e.note ? '<div class="note">' + escapeHtml(e.note) + '</div>' : '') +
+        linkHtml + '</div>';
+    }).join('');
+
+    list.querySelectorAll('.card').forEach(function(card){
+      card.addEventListener('click', function(){ openSheet('edit', card.dataset.id); });
+    });
+  }
+
+  function render(){
+    renderTagRow();
+    renderList();
+    $('#countLabel').textContent = entries.length ? '共 ' + entries.length + ' 則' : '';
+  }
+
+  function renderTagPicker(){
+    var picker = $('#tagPicker');
+    picker.innerHTML = '';
+    allTags().forEach(function(tag){
+      var btn = document.createElement('div');
+      btn.className = 'tag-toggle';
+      btn.textContent = tag;
+      var on = sheetSelectedTags.has(tag);
+      btn.dataset.on = on ? 'true' : 'false';
+      if(on) btn.style.background = tagColor(tag);
+      btn.addEventListener('click', function(){
+        if(sheetSelectedTags.has(tag)) sheetSelectedTags.delete(tag);
+        else sheetSelectedTags.add(tag);
+        renderTagPicker();
+      });
+      picker.appendChild(btn);
+    });
+  }
+
+  function openSheet(mode, id){
+    sheetMode = mode;
+    editingId = id || null;
+    var entry = id ? entries.find(function(e){ return e.id === id; }) : null;
+
+    $('#sheetTitle').textContent = mode === 'edit' ? '編輯這一則' : '新增一則';
+    $('#f-title').value = entry ? entry.title : '';
+    $('#f-note').value = entry ? entry.note : '';
+    $('#f-image').value = entry ? (entry.image || '') : '';
+    $('#f-link').value = entry ? (entry.link || '') : '';
+    $('#f-newtag').value = '';
+    sheetSelectedTags = new Set(entry ? (entry.tags||[]) : []);
+    renderTagPicker();
+    updatePreview();
+
+    $('#deleteRow').style.display = mode === 'edit' ? 'flex' : 'none';
+    overlay.dataset.open = 'true';
+    setTimeout(function(){ $('#f-title').focus(); }, 200);
+  }
+
+  function closeSheet(){
+    overlay.dataset.open = 'false';
+  }
+
+  function updatePreview(){
+    var url = $('#f-image').value.trim();
+    var img = $('#previewThumb');
+    if(!url){ img.style.display = 'none'; return; }
+    img.onerror = function(){ img.style.display = 'none'; };
+    img.onload = function(){ img.style.display = 'block'; };
+    img.src = url;
+  }
+
+  function saveEntry(){
+    var title = $('#f-title').value.trim();
+    if(!title){ showToast('請先填標題'); $('#f-title').focus(); return; }
+    var note = $('#f-note').value.trim();
+    var image = $('#f-image').value.trim();
+    var link = $('#f-link').value.trim();
+    var tags = Array.from(sheetSelectedTags);
+
+    if(sheetMode === 'edit' && editingId){
+      var idx = entries.findIndex(function(e){ return e.id === editingId; });
+      if(idx > -1){
+        entries[idx] = Object.assign({}, entries[idx], {title:title, note:note, image:image, link:link, tags:tags});
+      }
+    } else {
+      entries.unshift({id: uid(), title:title, note:note, image:image, link:link, tags:tags, createdAt: new Date().toISOString()});
+    }
+    persist();
+    closeSheet();
+    render();
+    showToast('已儲存');
+  }
+
+  function deleteEntry(){
+    if(!editingId) return;
+    if(!confirm('確定要刪除這一則嗎？')) return;
+    if(editingId.indexOf('seed-') === 0){
+      var deleted = getDeletedSeeds();
+      deleted.push(editingId);
+      localStorage.setItem(DELETED_SEEDS_KEY, JSON.stringify(deleted));
+    }
+    entries = entries.filter(function(e){ return e.id !== editingId; });
+    persist();
+    closeSheet();
+    render();
+    showToast('已刪除');
+  }
+
+  function exportBackup(){
+    if(entries.length === 0){ showToast('目前還沒有資料可以匯出'); return; }
+    var sorted = entries.slice().sort(function(a,b){ return new Date(b.createdAt) - new Date(a.createdAt); });
+    var lines = ['# 拼貼筆記備份', '匯出時間：' + new Date().toLocaleString('zh-TW'), '共 ' + entries.length + ' 則', ''];
+    sorted.forEach(function(e){
+      lines.push('## ' + e.title);
+      if(e.tags && e.tags.length) lines.push('標籤：' + e.tags.join('、'));
+      if(e.note) lines.push('', e.note);
+      if(e.image) lines.push('', '圖片：' + e.image);
+      if(e.link) lines.push('連結：' + e.link);
+      lines.push('', '---', '');
+    });
+    var blob = new Blob([lines.join('\n')], {type:'text/markdown;charset=utf-8'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = '拼貼筆記備份-' + new Date().toISOString().slice(0,10) + '.md';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('備份檔已下載');
+  }
+
+  $('#exportBtn').addEventListener('click', exportBackup);
+  $('#fab').addEventListener('click', function(){ openSheet('add', null); });
+  $('#cancelBtn').addEventListener('click', closeSheet);
+  $('#saveBtn').addEventListener('click', saveEntry);
+  $('#deleteBtn').addEventListener('click', deleteEntry);
+  overlay.addEventListener('click', function(ev){ if(ev.target === overlay) closeSheet(); });
+  $('#f-image').addEventListener('input', updatePreview);
+  $('#addTagBtn').addEventListener('click', addNewTagFromInput);
+  $('#f-newtag').addEventListener('keydown', function(ev){
+    if(ev.key === 'Enter'){ ev.preventDefault(); addNewTagFromInput(); }
+  });
+  function addNewTagFromInput(){
+    var input = $('#f-newtag');
+    var val = input.value.trim();
+    if(!val) return;
+    sheetSelectedTags.add(val);
+    input.value = '';
+    renderTagPicker();
+  }
+  $('#search').addEventListener('input', function(ev){
+    searchTerm = ev.target.value;
+    renderList();
+  });
+
+  loadEntries();
+  render();
 })();
 </script>
 </body>

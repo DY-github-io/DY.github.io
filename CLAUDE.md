@@ -1,0 +1,44 @@
+# 拼貼筆記 — 網站維護指南
+
+## 這是什麼
+GitHub Pages 上的個人資料收藏網站。使用者（naveenaa）用手機或電腦直接操作 UI 新增日常內容；需要永久保存或結構性修改時，由 Claude 編輯 index.html 並推送。
+
+## 更新內容的做法
+使用者說「幫我加一筆：[內容]」時：
+1. 讀 index.html，找到 `SEED_ENTRIES` 陣列
+2. 新增一筆，id 格式為 `seed-XXX`（流水號，看目前最大的 +1）
+3. commit + push 到對應分支
+
+種子資料會自動合併進使用者的 localStorage，不會覆蓋他們自己加的內容。使用者刪除過的種子 ID 會被記住，不會重新出現。
+
+## 每筆資料的格式
+```javascript
+{
+  id: 'seed-002',           // 必填，seed- 前綴 + 流水號
+  title: '標題',             // 必填
+  tags: ['分類1', '分類2'],   // 選填，陣列
+  note: '簡短說明',           // 選填
+  image: 'https://...',     // 選填，圖片網址
+  link: 'https://...',      // 選填，來源連結
+  createdAt: 'ISO字串'       // 必填，用當下時間
+}
+```
+
+## 預設標籤
+參考資料、想買的、想存的、食譜。使用者可以自訂新標籤。
+
+## 設計規則
+- 深色底、暖色卡片（ink + paper 配色）
+- 主色：brass (#C9A227)、jade (#4B7A6C)
+- 字體：Noto Serif TC（標題）、Noto Sans TC（內文）、IBM Plex Mono（標籤/小字）
+- 不加不必要的功能，保持目前的簡潔感
+
+## 技術備註
+- 純靜態 HTML，無後端
+- 資料存在瀏覽器 localStorage（key: `naveenaa-entries`）
+- 種子資料寫在 index.html 的 `SEED_ENTRIES` 陣列裡
+- Google Fonts 外連（GitHub Pages 可用）
+- 匯出功能會產生 .md 備份檔
+
+## 語言
+所有面對使用者的文字用繁體中文。
