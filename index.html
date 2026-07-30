@@ -1,272 +1,444 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>簡易點名系統</title>
-    <meta name="theme-color" content="3B4252" />
+    <title>DY 的收藏</title>
     <style>
-        h1 {
-            /* 標題顏色 */
-            color: var(--nord7)
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --ground: #F4F1EC;
+            --surface: #FEFDFB;
+            --ink: #2C2925;
+            --ink-2: #7D786F;
+            --ink-3: #ADA89F;
+            --rule: #DDD9D2;
+            --sage: #527A65;
+            --sage-light: #E8F0EB;
+            --clay: #B07D4F;
+            --clay-light: #F3ECE3;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --ground: #171615;
+                --surface: #222120;
+                --ink: #D5D0C8;
+                --ink-2: #8A857D;
+                --ink-3: #565350;
+                --rule: #333130;
+                --sage: #72A98A;
+                --sage-light: #1D2B23;
+                --clay: #CCA06C;
+                --clay-light: #2A2319;
+            }
+        }
+        :root[data-theme="dark"] {
+            --ground: #171615;
+            --surface: #222120;
+            --ink: #D5D0C8;
+            --ink-2: #8A857D;
+            --ink-3: #565350;
+            --rule: #333130;
+            --sage: #72A98A;
+            --sage-light: #1D2B23;
+            --clay: #CCA06C;
+            --clay-light: #2A2319;
+        }
+        :root[data-theme="light"] {
+            --ground: #F4F1EC;
+            --surface: #FEFDFB;
+            --ink: #2C2925;
+            --ink-2: #7D786F;
+            --ink-3: #ADA89F;
+            --rule: #DDD9D2;
+            --sage: #527A65;
+            --sage-light: #E8F0EB;
+            --clay: #B07D4F;
+            --clay-light: #F3ECE3;
         }
 
         body {
-            /* 背景顏色 */
-            background-color: var(--nord0)
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", sans-serif;
+            background: var(--ground);
+            color: var(--ink);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
         }
 
-        body {
-            /* 可選顏色 */
-            --nord0: #2E3440;
-            --nord1: #3B4252;
-            --nord2: #434C5E;
-            --nord3: #4C566A;
-            --nord4: #D8DEE9;
-            --nord5: #E5E9F0;
-            --nord6: #ECEFF4;
-            --nord7: #8FBCBB;
-            --nord8: #88C0D0;
-            --nord9: #81A1C1;
-            --nord10: #5E81AC;
-            --nord11: #BF616A;
-            --nord12: #D08770;
-            --nord13: #EBCB8B;
-            --nord14: #A3BE8C;
-            --nord15: #B48EAD;
-            --black: #000;
-            --line: #4C566A
+        .page {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 0 1.25rem;
         }
 
-        main,
-        nav {
-            display: flex
+        /* ── Header ── */
+        .site-header {
+            padding: 2.5rem 0 0.75rem;
+        }
+        .site-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+        .site-header p {
+            color: var(--ink-2);
+            font-size: 0.88rem;
+            margin-top: 0.15rem;
         }
 
-        .call button,
-        button:hover {
-            background-color: var(--nord2)
+        /* ── Nav ── */
+        .site-nav {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: var(--ground);
+            border-bottom: 1px solid var(--rule);
+            padding: 0.6rem 0;
+            overflow-x: auto;
+            white-space: nowrap;
+            display: flex;
+            gap: 0.15rem;
         }
-
-        button,
-        section>div {
-            background-color: var(--nord1);
-            box-shadow: rgba(0, 0, 0, .2) 0 0 .5rem
-        }
-
-        main,
-        section>div {
-            padding: 1rem;
-            width: 100%
-        }
-
-        footer,
-        footer a {
-            color: var(--nord4)
-        }
-
-        .search button,
-        button,
-        input,
-        section>div {
-            box-shadow: rgba(0, 0, 0, .2) 0 0 .5rem
-        }
-
-        body,
-        button,
-        h2,
-        html {
-            text-align: center
-        }
-
-        * {
-            padding: 0;
-            margin: 0;
-            box-sizing: border-box;
-            font-family: Arial, "微軟正黑體", Helvetica, sans-serif;
-            color: var(--nord6)
-        }
-
-        body,
-        html {
-            min-height: 100%
-        }
-
-        main {
-            flex-direction: column;
-            height: 100vh;
-            height: 100dvh;
-            max-width: 500px;
-            margin: 0 auto
-        }
-
-        nav {
-            justify-content: space-between
-        }
-
-        button {
-            display: block;
-            height: 50px;
-            width: calc(1/3*100% - 1rem);
-            line-height: 50px;
-            border-radius: 1rem;
-            text-decoration: none;
-            border: none;
-            cursor: pointer;
-            transition: background-color .2s ease-in-out
-        }
-
-        #call,
-        .search,
-        footer {
-            display: flex
-        }
-
-        .call button {
-            width: calc(1/4*100% - 1rem);
-            margin: .5rem
-        }
-
-        button:hover {
-            filter: brightness(1.2)
-        }
-
-        button:active {
-            background-color: var(--nord3);
-            filter: brightness(1.5)
-        }
-
-        section {
-            flex-grow: 1;
-            margin: 1rem 0;
-            position: relative
-        }
-
-        footer {
-            justify-content: flex-end;
-            align-items: flex-end
-        }
-
-        section>div {
-            border-radius: 1rem;
-            overflow-x: hidden;
-            overflow-y: auto;
+        .site-nav::after {
+            content: "";
             position: absolute;
-            height: 100%;
-            transition: opacity .5s ease-in-out
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+        }
+        .site-nav a {
+            display: inline-block;
+            padding: 0.3rem 0.7rem;
+            font-size: 0.85rem;
+            color: var(--ink-2);
+            text-decoration: none;
+            border-bottom: 2px solid transparent;
+            transition: color 0.15s, border-color 0.15s;
+        }
+        .site-nav a:hover {
+            color: var(--ink);
+        }
+        .site-nav a.active {
+            color: var(--sage);
+            border-bottom-color: var(--sage);
         }
 
-        #add,
-        #history {
-            opacity: 0
+        /* ── Sections ── */
+        .section {
+            padding-top: 2.5rem;
         }
 
-        #call {
-            z-index: 2;
+        .section-label {
+            display: inline-block;
+            background: var(--sage);
+            color: #fff;
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 0.2rem 0.7rem;
+            letter-spacing: 0.04em;
+            margin-bottom: 1rem;
+        }
+
+        /* ── Card grid ── */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+        @media (max-width: 520px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--rule);
+            padding: 1rem 1.1rem;
+            transition: border-color 0.15s;
+        }
+        .card:hover {
+            border-color: var(--ink-3);
+        }
+        .card-title {
+            font-size: 0.92rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+        .card-title a {
+            color: var(--ink);
+            text-decoration: none;
+        }
+        .card-title a:hover {
+            color: var(--sage);
+        }
+        .card-desc {
+            font-size: 0.82rem;
+            color: var(--ink-2);
+            line-height: 1.55;
+        }
+        .card-meta {
+            display: flex;
             flex-wrap: wrap;
-            justify-content: space-between
+            gap: 0.35rem;
+            margin-top: 0.55rem;
+        }
+        .card-tag {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--sage);
+            background: var(--sage-light);
+            padding: 0.12rem 0.5rem;
+            letter-spacing: 0.02em;
         }
 
-        .search {
-            justify-content: center;
-            align-items: center
+        /* ── Wishlist ── */
+        .wish-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+        .wish-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--rule);
+            gap: 1rem;
+        }
+        .wish-row:last-child {
+            border-bottom: none;
+        }
+        .wish-name {
+            font-size: 0.92rem;
+            font-weight: 500;
+        }
+        .wish-note {
+            font-size: 0.78rem;
+            color: var(--ink-2);
+            margin-top: 0.1rem;
+        }
+        .wish-price {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--clay);
+            white-space: nowrap;
+            font-variant-numeric: tabular-nums;
         }
 
-        .search button,
-        input {
-            height: 2rem;
-            width: 50%;
-            border-radius: .5rem;
-            border: transparent;
-            padding: 0 1rem;
-            background-color: var(--nord3);
-            color: var(--nord4)
+        /* ── Notes ── */
+        .note {
+            background: var(--surface);
+            border: 1px solid var(--rule);
+            border-left: 3px solid var(--clay);
+            padding: 1rem 1.1rem;
+            margin-bottom: 0.75rem;
+        }
+        .note-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.45rem;
+        }
+        .note p, .note ul {
+            font-size: 0.84rem;
+            color: var(--ink-2);
+            line-height: 1.6;
+        }
+        .note ul {
+            padding-left: 1.1rem;
+        }
+        .note li {
+            margin-bottom: 0.2rem;
+        }
+        .note li::marker {
+            color: var(--ink-3);
         }
 
-        h2,
-        table {
-            width: 100%
+        /* ── Footer ── */
+        .site-footer {
+            padding: 3rem 0 2rem;
+            font-size: 0.75rem;
+            color: var(--ink-3);
+        }
+        .site-footer hr {
+            border: none;
+            border-top: 1px solid var(--rule);
+            margin-bottom: 0.75rem;
         }
 
-        input:focus {
-            outline: transparent
+        /* ── Focus ── */
+        a:focus-visible {
+            outline: 2px solid var(--sage);
+            outline-offset: 2px;
         }
 
-        .search button {
-            margin-left: 1rem;
-            width: auto;
-            line-height: 100%
-        }
-
-        table {
-            border-collapse: collapse;
-            margin-top: 1rem
-        }
-
-        tr {
-            border-bottom: 1px solid var(--line)
-        }
-
-        td {
-            padding: .5rem
-        }
-
-        h2 {
-            margin-top: 2rem;
-            font-weight: 600
-        }
-
-        #status {
-            margin: .5rem 0 1rem;
-            color: var(--nord13);
-            font-size: 1.3rem
+        @media (prefers-reduced-motion: reduce) {
+            * { transition: none !important; }
         }
     </style>
 </head>
-
 <body>
+<div class="page">
+
+    <header class="site-header">
+        <h1>DY 的收藏</h1>
+        <p>什麼都收一點的個人資料庫</p>
+    </header>
+
+    <nav class="site-nav" id="nav">
+        <a href="#recipes">食譜</a>
+        <a href="#work">工作參考</a>
+        <a href="#wishlist">想買的</a>
+        <a href="#notes">筆記</a>
+        <a href="#links">常用連結</a>
+    </nav>
+
     <main>
-        <h1>簡易點名系統</h1>
-        <h2 id="status">歡迎使用</h2>
-        <nav>
-            <button onclick="searchA()">查詢紀錄</button><button onclick="callA()">點名</button><button
-                onclick="addA()">新增學生</button>
-        </nav>
-        <section>
-            <div id="history">
-                <div class="search">
-                    <input type="text"><button>搜尋</button>
+
+        <!-- ── 食譜 ── -->
+        <section class="section" id="recipes">
+            <span class="section-label">食譜</span>
+            <div class="grid">
+                <div class="card">
+                    <div class="card-title">日式咖哩</div>
+                    <div class="card-desc">馬鈴薯紅蘿蔔豬肉，用現成咖哩塊就很好吃，平日晚餐首選。</div>
+                    <div class="card-meta"><span class="card-tag">日式</span><span class="card-tag">簡單</span></div>
                 </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <td>時間</td>
-                            <td>剩下課堂</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-            </div>
-            <div id="call">
-                <h2>載入中</h2>
-            </div>
-            <div id="add">
-                <div class="search"><input type="text"><button>新增</button></div>
+                <div class="card">
+                    <div class="card-title">蒜香奶油義大利麵</div>
+                    <div class="card-desc">15 分鐘搞定。大蒜、奶油、帕瑪森起司，擠一點檸檬汁。</div>
+                    <div class="card-meta"><span class="card-tag">義式</span><span class="card-tag">快速</span></div>
+                </div>
+                <div class="card">
+                    <div class="card-title">滷肉飯</div>
+                    <div class="card-desc">五花肉切小丁，紅蔥頭爆香，醬油冰糖小火慢滷，配白飯無敵。</div>
+                    <div class="card-meta"><span class="card-tag">台式</span><span class="card-tag">經典</span></div>
+                </div>
+                <div class="card">
+                    <div class="card-title">味噌湯</div>
+                    <div class="card-desc">豆腐、海帶芽、蔥花。味噌不要煮滾，關火再拌進去。</div>
+                    <div class="card-meta"><span class="card-tag">日式</span><span class="card-tag">湯品</span></div>
+                </div>
             </div>
         </section>
-        <footer><a href="edit-mr.github.io/">毛哥EM</a>製作 | <a href="https://emtech.cc/post/roll-call">教學</a>
-        </footer>
+
+        <!-- ── 工作參考 ── -->
+        <section class="section" id="work">
+            <span class="section-label">工作參考</span>
+            <div class="grid">
+                <div class="card">
+                    <div class="card-title"><a href="#">Git 常用指令</a></div>
+                    <div class="card-desc">branch、merge、rebase、stash，常忘的指令都記在這裡。</div>
+                    <div class="card-meta"><span class="card-tag">Git</span><span class="card-tag">速查</span></div>
+                </div>
+                <div class="card">
+                    <div class="card-title"><a href="#">會議記錄模板</a></div>
+                    <div class="card-desc">議程、決議事項、追蹤項目。每次開會直接複製貼上。</div>
+                    <div class="card-meta"><span class="card-tag">模板</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── 想買的 ── -->
+        <section class="section" id="wishlist">
+            <span class="section-label">想買的</span>
+            <div class="wish-list">
+                <div class="wish-row">
+                    <div>
+                        <div class="wish-name">機械鍵盤</div>
+                        <div class="wish-note">無線、熱插拔、75% 配列</div>
+                    </div>
+                    <div class="wish-price">~$3,600</div>
+                </div>
+                <div class="wish-row">
+                    <div>
+                        <div class="wish-name">降噪耳機</div>
+                        <div class="wish-note">通勤跟專注工作用</div>
+                    </div>
+                    <div class="wish-price">~$7,500</div>
+                </div>
+                <div class="wish-row">
+                    <div>
+                        <div class="wish-name">螢幕掛燈</div>
+                        <div class="wish-note">不反光、可調色溫</div>
+                    </div>
+                    <div class="wish-price">~$1,200</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── 筆記 ── -->
+        <section class="section" id="notes">
+            <span class="section-label">筆記</span>
+            <div class="note">
+                <div class="note-title">想讀的書</div>
+                <ul>
+                    <li>原子習慣 — James Clear</li>
+                    <li>深度工作力 — Cal Newport</li>
+                    <li>跟任何人都可以聊得來</li>
+                </ul>
+            </div>
+            <div class="note">
+                <div class="note-title">隨手記</div>
+                <p>可以放任何臨時想到的東西，待辦事項、靈感、備忘錄。直接編輯這個區塊就好。</p>
+            </div>
+        </section>
+
+        <!-- ── 常用連結 ── -->
+        <section class="section" id="links">
+            <span class="section-label">常用連結</span>
+            <div class="grid">
+                <div class="card">
+                    <div class="card-title"><a href="https://github.com" target="_blank" rel="noopener">GitHub</a></div>
+                    <div class="card-desc">程式碼託管、版本控制</div>
+                </div>
+                <div class="card">
+                    <div class="card-title"><a href="https://www.youtube.com" target="_blank" rel="noopener">YouTube</a></div>
+                    <div class="card-desc">教學影片、音樂、各種頻道</div>
+                </div>
+                <div class="card">
+                    <div class="card-title"><a href="https://claude.ai" target="_blank" rel="noopener">Claude</a></div>
+                    <div class="card-desc">AI 助手，問問題、寫程式</div>
+                </div>
+                <div class="card">
+                    <div class="card-title"><a href="https://www.google.com.tw" target="_blank" rel="noopener">Google</a></div>
+                    <div class="card-desc">搜尋引擎</div>
+                </div>
+            </div>
+        </section>
+
     </main>
-    <script>
-        //部屬連結放這裡
-        var url = "https://script.google.com/macros/s/AKfycbxOHH2o6t_hjMrxLAKaVL5K37u5UhydvYXmhO0RHU7GnNbnLSVsoFjjUlPgbC8OYBhm/exec";
-        const [history, call, add] = ["history", "call", "add"].map(t => document.getElementById(t)), searchA = () => { history.style.opacity = 1, history.style.zIndex = 2, call.style.opacity = add.style.opacity = 0, call.style.zIndex = add.style.zIndex = 1 }, callA = () => { history.style.opacity = add.style.opacity = 0, history.style.zIndex = add.style.zIndex = 1, call.style.opacity = 1, call.style.zIndex = 2 }, addA = () => { history.style.opacity = call.style.opacity = 0, history.style.zIndex = call.style.zIndex = 1, add.style.opacity = 1, add.style.zIndex = 2 }; fetch(url + "?type=list").then(t => t.json()).then(t => { let e = document.getElementById("call"); e.innerHTML = "", t.forEach((t, n) => { let a = document.createElement("button"); a.textContent = t.name, a.id = `student-${n + 1}`, a.addEventListener("click", () => { rollCall(t.name, t.left, n + 1) }), e.appendChild(a) }) }).catch(t => console.error(t)); const status = document.getElementById("status"); function rollCall(t, e, n) { status.innerHTML = `${t} 點名中...`; var a = new Date, a = a.toLocaleString("zh-TW", { year: "numeric", month: "2-digit", day: "2-digit", hour: "numeric", minute: "numeric", second: "numeric", hour12: !0 }).replace("-", "/").replace(" ", " "); fetch(url + `?type=call&name=${t}&time=${a}&remain=${e}`).then(a => { a.ok ? (status.innerHTML = `${t} 已點名成功！剩餘課堂：${e - 1}`, document.getElementById("student-" + n).style.backgroundColor = "var(--nord14)") : (status.innerHTML = `${t} 已點名失敗！剩餘課堂：${e}`, document.getElementById("student-" + n).style.backgroundColor = "var(--nord11)") }).catch(t => { status.innerHTML = `發生錯誤：${t}` }) } const searchBtn = document.querySelector("#history button"), searchInput = document.querySelector("#history input"), historyTableBody = document.querySelector("#history tbody"); searchBtn.addEventListener("click", () => { status.innerHTML = "搜尋中..."; let t = searchInput.value, e = `${e}?type=search&name=${encodeURIComponent(t)}`; fetch(e).then(t => t.json()).then(t => { let e = document.querySelector("#history table tbody"); e.innerHTML = "", t.forEach(t => { let n = document.createElement("tr"), a = document.createElement("td"), l = document.createElement("td"); var r = new Date(t.time); a.textContent = r.toLocaleString("zh-TW", { year: "numeric", month: "2-digit", day: "2-digit", hour: "numeric", minute: "numeric", second: "numeric", hour12: !0 }).replace("-", "/").replace(" ", " "), l.textContent = t.left, n.appendChild(a), n.appendChild(l), e.appendChild(n), status.innerHTML = "搜尋完成" }) }).catch(t => status.innerHTML = t) }); const addBtn = document.querySelector("#add button"), addInput = document.querySelector("#add input"); addBtn.addEventListener("click", () => { let t = addInput.value; t && (status.innerHTML = "新增中...", fetch(`${url}?type=new&name=${encodeURIComponent(t)}`).then(t => status.innerHTML = "新增成功").catch(t => { status.innerHTML = t })) });
-    </script>
 
+    <footer class="site-footer">
+        <hr>
+        DY 的收藏 · 最後更新 2026-07
+    </footer>
+
+</div>
+
+<script>
+(function() {
+    var nav = document.getElementById("nav");
+    var links = nav.querySelectorAll("a");
+    var sections = [];
+    links.forEach(function(a) {
+        var id = a.getAttribute("href").slice(1);
+        var el = document.getElementById(id);
+        if (el) sections.push({ link: a, el: el });
+    });
+    function update() {
+        var y = window.scrollY + 80;
+        var current = sections[0];
+        for (var i = 0; i < sections.length; i++) {
+            if (sections[i].el.offsetTop <= y) current = sections[i];
+        }
+        links.forEach(function(a) { a.classList.remove("active"); });
+        if (current) current.link.classList.add("active");
+    }
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+})();
+</script>
 </body>
-
 </html>
-
