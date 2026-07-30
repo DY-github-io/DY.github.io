@@ -644,17 +644,29 @@
     var local = [];
     try { if(stored) local = JSON.parse(stored); } catch(e){}
 
-    var localIds = {};
-    local.forEach(function(e){ localIds[e.id] = true; });
     var deletedIds = {};
     getDeletedSeeds().forEach(function(id){ deletedIds[id] = true; });
 
-    var newSeeds = SEED_ENTRIES.filter(function(s){
-      return !localIds[s.id] && !deletedIds[s.id];
+    var seedMap = {};
+    SEED_ENTRIES.forEach(function(s){ seedMap[s.id] = s; });
+
+    var seenSeedIds = {};
+    var merged = local
+      .filter(function(e){ return !deletedIds[e.id]; })
+      .map(function(e){
+        if(seedMap[e.id]){
+          seenSeedIds[e.id] = true;
+          return seedMap[e.id];
+        }
+        return e;
+      });
+
+    SEED_ENTRIES.forEach(function(s){
+      if(!seenSeedIds[s.id] && !deletedIds[s.id]) merged.push(s);
     });
 
-    entries = local.concat(newSeeds);
-    if(newSeeds.length > 0) persist();
+    entries = merged;
+    persist();
   }
 
   function persist(){
