@@ -40,10 +40,77 @@
     -webkit-font-smoothing:antialiased;
   }
   #app{
+    display:none;
     max-width:720px;
     margin:0 auto;
     padding:0 0 96px;
     min-height:100vh;
+  }
+
+  #lockOverlay{
+    position:fixed; inset:0;
+    background:var(--ink);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:100;
+    padding:20px;
+  }
+  .lock-card{
+    background:var(--paper);
+    color:var(--ink-text);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:32px 26px;
+    max-width:320px;
+    width:100%;
+    text-align:center;
+  }
+  .lock-eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.12em;
+    color:var(--brass);
+    text-transform:uppercase;
+    margin:0 0 8px;
+  }
+  .lock-title{
+    font-family:'Noto Serif TC', serif;
+    font-weight:700;
+    font-size:20px;
+    margin:0 0 20px;
+    color:var(--ink-text);
+  }
+  .lock-input{
+    width:100%;
+    border:1px solid rgba(43,38,32,0.18);
+    background:#fff;
+    border-radius:10px;
+    padding:11px 14px;
+    font-size:15px;
+    font-family:'Noto Sans TC', sans-serif;
+    color:var(--ink-text);
+    outline:none;
+    margin-bottom:12px;
+    text-align:center;
+  }
+  .lock-input:focus{border-color:var(--jade);}
+  .lock-btn{
+    width:100%;
+    padding:12px;
+    border-radius:10px;
+    border:none;
+    background:var(--jade);
+    color:#fff;
+    font-size:14px;
+    font-weight:600;
+    font-family:'Noto Sans TC', sans-serif;
+    cursor:pointer;
+  }
+  .lock-error{
+    color:var(--danger);
+    font-size:12.5px;
+    margin-top:10px;
   }
 
   header{
@@ -393,6 +460,16 @@
 </style>
 </head>
 <body>
+<div id="lockOverlay">
+  <div class="lock-card">
+    <p class="lock-eyebrow">私人筆記</p>
+    <h1 class="lock-title">請輸入密碼</h1>
+    <input type="password" id="lockInput" class="lock-input" placeholder="密碼" autocomplete="off">
+    <button type="button" id="lockSubmit" class="lock-btn">解鎖</button>
+    <p class="lock-error" id="lockError" style="display:none;">密碼不對，再試一次</p>
+  </div>
+</div>
+
 <div id="app">
   <header>
     <p class="eyebrow">naveenaa · 持續累積</p>
@@ -774,8 +851,51 @@
     renderList();
   });
 
-  loadEntries();
-  render();
+  var UNLOCK_KEY = 'naveenaa-unlocked';
+  var PASS_HASH = '2aced65d6b9d7ac4c83a3115dfc24c56388964f1960bd3c96c5feb2f6776bd1f';
+
+  function sha256Hex(str){
+    var enc = new TextEncoder().encode(str);
+    return crypto.subtle.digest('SHA-256', enc).then(function(buf){
+      return Array.from(new Uint8Array(buf)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+    });
+  }
+
+  function unlockApp(){
+    $('#lockOverlay').style.display = 'none';
+    $('#app').style.display = 'block';
+    loadEntries();
+    render();
+  }
+
+  function initLock(){
+    if(localStorage.getItem(UNLOCK_KEY) === '1'){
+      unlockApp();
+      return;
+    }
+    var input = $('#lockInput');
+    var err = $('#lockError');
+    function trySubmit(){
+      var val = input.value;
+      sha256Hex(val).then(function(hash){
+        if(hash === PASS_HASH){
+          localStorage.setItem(UNLOCK_KEY, '1');
+          unlockApp();
+        } else {
+          err.style.display = 'block';
+          input.value = '';
+          input.focus();
+        }
+      });
+    }
+    $('#lockSubmit').addEventListener('click', trySubmit);
+    input.addEventListener('keydown', function(ev){
+      if(ev.key === 'Enter'){ ev.preventDefault(); trySubmit(); }
+    });
+    setTimeout(function(){ input.focus(); }, 100);
+  }
+
+  initLock();
 })();
 </script>
 </body>
