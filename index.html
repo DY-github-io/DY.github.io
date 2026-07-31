@@ -538,6 +538,8 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
 (function(){
   var STORAGE_KEY = 'naveenaa-entries';
@@ -602,7 +604,21 @@
     }
   ];
 
+  // Firebase 雲端同步
+  firebase.initializeApp({
+    apiKey: "AIzaSyC_yZuitilhO6Zi8rLP8Yb6GJKoCjFDfRc",
+    authDomain: "naveenaa-note.firebaseapp.com",
+    databaseURL: "https://naveenaa-note-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "naveenaa-note",
+    storageBucket: "naveenaa-note.firebasestorage.app",
+    messagingSenderId: "727509223612",
+    appId: "1:727509223612:web:8ba3af791fae0032ba28b9"
+  });
+  var db = firebase.database();
+  var dataRef = db.ref('data');
+
   var entries = [];
+  var deletedSeedsList = [];
   var activeTag = null;
   var searchTerm = '';
   var sheetMode = 'add';
@@ -640,49 +656,80 @@
     showToast._t = setTimeout(function(){ toastEl.removeAttribute('data-show'); }, 2200);
   }
 
-  function getDeletedSeeds(){
-    try {
-      var raw = localStorage.getItem(DELETED_SEEDS_KEY);
-      return raw ? JSON.parse(raw) : [];
-    } catch(e){ return []; }
-  }
-
-  function loadEntries(){
+  function migrateLocalStorage(){
     var stored = localStorage.getItem(STORAGE_KEY);
     var local = [];
     try { if(stored) local = JSON.parse(stored); } catch(e){}
+    var deletedRaw = localStorage.getItem(DELETED_SEEDS_KEY);
+    var deleted = [];
+    try { if(deletedRaw) deleted = JSON.parse(deletedRaw); } catch(e){}
 
-    var deletedIds = {};
-    getDeletedSeeds().forEach(function(id){ deletedIds[id] = true; });
-
-    var seedMap = {};
-    SEED_ENTRIES.forEach(function(s){ seedMap[s.id] = s; });
-
-    var seenSeedIds = {};
-    var merged = local
-      .filter(function(e){ return !deletedIds[e.id]; })
-      .map(function(e){
-        if(seedMap[e.id]){
-          seenSeedIds[e.id] = true;
-          return seedMap[e.id];
-        }
-        return e;
-      });
-
-    SEED_ENTRIES.forEach(function(s){
-      if(!seenSeedIds[s.id] && !deletedIds[s.id]) merged.push(s);
+    var updates = {};
+    var hasData = false;
+    local.forEach(function(e){
+      if(e && e.id && e.id.indexOf('seed-') !== 0){
+        updates['entries/' + e.id] = e;
+        hasData = true;
+      }
     });
-
-    entries = merged;
-    persist();
+    if(deleted.length){ updates['deletedSeeds'] = deleted; hasData = true; }
+    if(hasData){
+      dataRef.update(updates).then(function(){
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(DELETED_SEEDS_KEY);
+      });
+    } else {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(DELETED_SEEDS_KEY);
+    }
   }
 
-  function persist(){
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-    } catch(e){
-      showToast('儲存失敗，可能是儲存空間已滿');
-    }
+  var syncStarted = false;
+  function startSync(){
+    dataRef.on('value', function(snap){
+      var data = snap.val() || {};
+
+      if(!syncStarted){
+        syncStarted = true;
+        var hasLocal = !!(localStorage.getItem(STORAGE_KEY));
+        if(hasLocal && !snap.exists()){
+          migrateLocalStorage();
+          return;
+        }
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(DELETED_SEEDS_KEY);
+      }
+
+      var storedObj = data.entries || {};
+      var stored = [];
+      Object.keys(storedObj).forEach(function(k){ if(storedObj[k]) stored.push(storedObj[k]); });
+      deletedSeedsList = data.deletedSeeds || [];
+      if(!Array.isArray(deletedSeedsList)) deletedSeedsList = Object.values(deletedSeedsList);
+
+      var deletedIds = {};
+      deletedSeedsList.forEach(function(id){ deletedIds[id] = true; });
+
+      var seedMap = {};
+      SEED_ENTRIES.forEach(function(s){ seedMap[s.id] = s; });
+
+      var seenSeedIds = {};
+      var merged = stored
+        .filter(function(e){ return e && !deletedIds[e.id]; })
+        .map(function(e){
+          if(seedMap[e.id]){
+            seenSeedIds[e.id] = true;
+            return seedMap[e.id];
+          }
+          return e;
+        });
+
+      SEED_ENTRIES.forEach(function(s){
+        if(!seenSeedIds[s.id] && !deletedIds[s.id]) merged.push(s);
+      });
+
+      entries = merged;
+      render();
+    });
   }
 
   function allTags(){
@@ -821,31 +868,31 @@
     var tags = Array.from(sheetSelectedTags);
 
     if(sheetMode === 'edit' && editingId){
-      var idx = entries.findIndex(function(e){ return e.id === editingId; });
-      if(idx > -1){
-        entries[idx] = Object.assign({}, entries[idx], {title:title, note:note, image:image, link:link, tags:tags});
-      }
+      var existing = entries.find(function(e){ return e.id === editingId; });
+      var updated = Object.assign({}, existing, {title:title, note:note, image:image, link:link, tags:tags});
+      dataRef.child('entries/' + editingId).set(updated);
     } else {
-      entries.unshift({id: uid(), title:title, note:note, image:image, link:link, tags:tags, createdAt: new Date().toISOString()});
+      var id = uid();
+      dataRef.child('entries/' + id).set({
+        id:id, title:title, note:note, image:image, link:link, tags:tags,
+        createdAt: new Date().toISOString()
+      });
     }
-    persist();
     closeSheet();
-    render();
     showToast('已儲存');
   }
 
   function deleteEntry(){
     if(!editingId) return;
     if(!confirm('確定要刪除這一則嗎？')) return;
+    var updates = {};
+    updates['entries/' + editingId] = null;
     if(editingId.indexOf('seed-') === 0){
-      var deleted = getDeletedSeeds();
-      deleted.push(editingId);
-      localStorage.setItem(DELETED_SEEDS_KEY, JSON.stringify(deleted));
+      deletedSeedsList.push(editingId);
+      updates['deletedSeeds'] = deletedSeedsList;
     }
-    entries = entries.filter(function(e){ return e.id !== editingId; });
-    persist();
+    dataRef.update(updates);
     closeSheet();
-    render();
     showToast('已刪除');
   }
 
@@ -910,8 +957,7 @@
   function unlockApp(){
     $('#lockOverlay').style.display = 'none';
     $('#app').style.display = 'block';
-    loadEntries();
-    render();
+    startSync();
   }
 
   function initLock(){
