@@ -9,7 +9,7 @@ GitHub Pages 上的個人資料收藏網站。使用者（naveenaa）用手機�
 2. 新增一筆，id 格式為 `seed-XXX`（流水號，看目前最大的 +1）
 3. commit + push 直接推 main（不開分支，改了馬上上線）
 
-種子資料會自動合併進使用者的 localStorage，不會覆蓋他們自己加的內容。使用者刪除過的種子 ID 會被記住，不會重新出現。
+種子資料會自動合併進使用者的雲端資料，不會覆蓋他們自己加的內容。使用者刪除過的種子 ID 會被記住，不會重新出現。
 
 ## 每筆資料的格式
 ```javascript
@@ -34,11 +34,28 @@ GitHub Pages 上的個人資料收藏網站。使用者（naveenaa）用手機�
 - 不加不必要的功能，保持目前的簡潔感
 
 ## 技術備註
-- 純靜態 HTML，無後端
-- 資料存在瀏覽器 localStorage（key: `naveenaa-entries`）
+- 純靜態 HTML，無後端，託管在 GitHub Pages
+- 資料存在 Firebase Realtime Database（跨裝置同步）
 - 種子資料寫在 index.html 的 `SEED_ENTRIES` 陣列裡
+- 資料變動時會同步寫入 Google Sheets 作為可瀏覽的備份
 - Google Fonts 外連（GitHub Pages 可用）
 - 匯出功能會產生 .md 備份檔
+
+## 雲端服務
+### Firebase Realtime Database
+- 專案名稱：naveenaa-note
+- 用途：跨裝置即時同步所有筆記資料
+- 資料路徑：`/data/entries/` 存使用者新增的資料，`/data/deletedSeeds/` 記錄已刪除的種子 ID
+- 設定寫在 index.html 的 `firebase.initializeApp(...)` 裡
+- 安全規則：開放讀寫（資料非機密，與密碼鎖同等級的防護）
+- 免費方案，不需付費
+
+### Google Sheets 同步
+- 試算表：https://docs.google.com/spreadsheets/d/14DhpOCaLdfzvoMzNRgiss2zsc0Ugygsnhv-ffSMEzP0
+- 用途：讓使用者可以在試算表裡瀏覽、整理所有資料
+- 透過 Google Apps Script 接收資料，每次網頁上有變動會自動同步整份資料到試算表
+- Apps Script 網址寫在 index.html 的 `SHEET_URL` 變數裡
+- 如果要重新部署 Apps Script，需要更新 `SHEET_URL`
 
 ## 密碼鎖
 首頁進去前有一層密碼提示框（`#lockOverlay`），前端用 SHA-256 比對輸入值。
