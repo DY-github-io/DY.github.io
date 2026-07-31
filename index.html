@@ -616,6 +616,7 @@
   });
   var db = firebase.database();
   var dataRef = db.ref('data');
+  var SHEET_URL = 'https://script.google.com/macros/s/AKfycbyNFe4wSHH938DrkfDTS7M5aC-xVM_jTv913p13RTDLNjFm9E_ba30rQqtDsBldeyjG/exec';
 
   var entries = [];
   var deletedSeedsList = [];
@@ -729,7 +730,22 @@
 
       entries = merged;
       render();
+      debouncedSheetSync();
     });
+  }
+
+  var sheetSyncTimer = null;
+  function debouncedSheetSync(){
+    clearTimeout(sheetSyncTimer);
+    sheetSyncTimer = setTimeout(syncToSheet, 2000);
+  }
+  function syncToSheet(){
+    if(!SHEET_URL || !entries.length) return;
+    fetch(SHEET_URL, {
+      method: 'POST',
+      body: JSON.stringify({ entries: entries }),
+      mode: 'no-cors'
+    }).catch(function(){});
   }
 
   function allTags(){
