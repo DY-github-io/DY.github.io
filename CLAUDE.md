@@ -7,7 +7,7 @@ GitHub Pages 上的個人資料收藏網站。使用者（naveenaa）用手機�
 使用者說「幫我加一筆：[內容]」時：
 1. 讀 index.html，找到 `SEED_ENTRIES` 陣列
 2. 新增一筆，id 格式為 `seed-XXX`（流水號，看目前最大的 +1）
-3. commit + push 到對應分支
+3. commit + push 直接推 main（不開分支，改了馬上上線）
 
 種子資料會自動合併進使用者的 localStorage，不會覆蓋他們自己加的內容。使用者刪除過的種子 ID 會被記住，不會重新出現。
 
